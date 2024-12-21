@@ -54,6 +54,7 @@ func (h *BitbucketHandler) Get(c *gin.Context) {
 		branch, authHeader string
 		state              State
 		decrypted          []byte
+		bodyBytes          []byte
 	)
 
 	branch, authHeader, request, err = parseCommonInput(c)
@@ -99,8 +100,13 @@ func (h *BitbucketHandler) Get(c *gin.Context) {
 		} else {
 			c.Data(http.StatusOK, response.Header.Get("Context-Type"), bodyBytes)
 		}
-	} else {
+	} else if response.StatusCode == 404 {
 		c.JSON(http.StatusOK, gin.H{"version": 1})
+	} else {
+		bodyBytes, err = io.ReadAll(response.Body)
+		log.Println(fmt.Sprintf("status: >%s<", string(bodyBytes)))
+
+		c.String(response.StatusCode, string(bodyBytes))
 	}
 }
 
@@ -148,9 +154,25 @@ func (h *BitbucketHandler) Post(c *gin.Context) {
 		"sourceBranch": branch,
 	}
 
-	if branchInfo := h.fetchBranchInfo(branch, request, authHeader); branchInfo != nil {
-		if commitId := branchInfo.GetCommitId(); commitId != "" {
-			parameters["sourceCommitId"] = commitId
+	bitbucketPutUrl := constructURL(
+		"%s/rest/api/1.0/projects/%s/repos/%s/browse/%s",
+		h.server,
+		request.Project, request.Repository, request.Path)
+
+	response, err = makeHTTPCall("HEAD", bitbucketPutUrl,
+		map[string]string{
+			"Authorization": authHeader,
+		}, nil)
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if response.StatusCode == 200 {
+		if branchInfo := h.fetchBranchInfo(branch, request, authHeader); branchInfo != nil {
+			if commitId := branchInfo.GetCommitId(); commitId != "" {
+				parameters["sourceCommitId"] = commitId
+			}
 		}
 	}
 
@@ -160,10 +182,6 @@ func (h *BitbucketHandler) Post(c *gin.Context) {
 		return
 	}
 
-	bitbucketPutUrl := constructURL(
-		"%s/rest/api/1.0/projects/%s/repos/%s/browse/%s",
-		h.server,
-		request.Project, request.Repository, request.Path)
 	response, err = makeHTTPCall("PUT", bitbucketPutUrl,
 		map[string]string{
 			"Authorization": authHeader,
