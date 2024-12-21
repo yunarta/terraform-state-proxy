@@ -1,7 +1,7 @@
 # .goreleaser.yaml
 # GoReleaser configuration file
 version: 2
-project_name: tfstate-proxy
+project_name: terraform-state-proxy
 
 before:
   hooks:
