@@ -82,7 +82,7 @@ func (h *BitbucketHandler) Get(c *gin.Context) {
 		bodyBytes, err := io.ReadAll(response.Body)
 		if err != nil {
 			log.Println("Error reading response body:", err)
-			c.String(http.StatusInternalServerError, "")
+			c.String(http.StatusInternalServerError, err.Error())
 			return
 		}
 
@@ -178,5 +178,5 @@ func (h *BitbucketHandler) Post(c *gin.Context) {
 	bodyBytes, err = io.ReadAll(response.Body)
 	log.Println(fmt.Sprintf("status: >%s<", string(bodyBytes)))
 
-	c.String(response.StatusCode, "")
+	c.String(response.StatusCode, string(bodyBytes))
 }
