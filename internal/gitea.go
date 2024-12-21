@@ -96,9 +96,11 @@ func (h *GiteaHandler) Get(c *gin.Context) {
 				} else {
 					c.String(http.StatusBadRequest, err.Error())
 				}
+			} else {
+				c.Data(http.StatusOK, response.Header.Get("Context-Type"), bodyBytes)
 			}
 		} else {
-			c.Data(http.StatusOK, response.Header.Get("Context-Type"), bodyBytes)
+			c.String(http.StatusBadRequest, err.Error())
 		}
 	} else {
 		c.JSON(http.StatusOK, gin.H{"version": 1})
