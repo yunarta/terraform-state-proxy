@@ -18,12 +18,12 @@ func main() {
 
 	bitbucket := internal.NewBitbucketHandler(config.Bitbucket.Server)
 
-	r.GET("/bitbucket/:project/:repo/:path", bitbucket.Get)
-	r.POST("/bitbucket/:project/:repo/:path", bitbucket.Post)
+	r.GET("/bitbucket/:project/:repo/*path", bitbucket.Get)
+	r.POST("/bitbucket/:project/:repo/*path", bitbucket.Post)
 
 	gitea := internal.NewGiteaHandler(config.Gitea.Server)
-	r.GET("/gitea/:project/:repo/:path", gitea.Get)
-	r.POST("/gitea/:project/:repo/:path", gitea.Post)
+	r.GET("/gitea/:project/:repo/*path", gitea.Get)
+	r.POST("/gitea/:project/:repo/*path", gitea.Post)
 
 	r.NoRoute(func(c *gin.Context) {
 		c.String(http.StatusMethodNotAllowed, "Method not allowed")

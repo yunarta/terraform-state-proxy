@@ -30,6 +30,7 @@ func parseCommonInput(c *gin.Context) (string, string, *Request, error) {
 		return "", "", nil, err
 	}
 
+	request.Path = strings.TrimPrefix(request.Path, "/")
 	return branch, authHeader, &request, nil
 }
 
