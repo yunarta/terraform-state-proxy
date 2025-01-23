@@ -21,6 +21,7 @@ func closeGracefully(body Closeable) {
 
 func parseCommonInput(c *gin.Context) (string, string, *Request, error) {
 	branch := c.Query("branch")
+	encrypt := c.Query("encrypt")
 	authHeader := c.GetHeader("Authorization")
 
 	request := Request{}
@@ -31,7 +32,7 @@ func parseCommonInput(c *gin.Context) (string, string, *Request, error) {
 	}
 
 	request.Path = strings.TrimPrefix(request.Path, "/")
-	return branch, authHeader, &request, nil
+	return branch, encrypt, authHeader, &request, nil
 }
 
 func constructURL(format string, server string, params ...interface{}) string {
