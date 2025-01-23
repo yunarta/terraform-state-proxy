@@ -57,7 +57,7 @@ func (h *GiteaHandler) Get(c *gin.Context) {
 		decrypted          []byte
 	)
 
-	branch, encrypt, authHeader, request, err = parseCommonInput(c)
+	branch, _, authHeader, request, err = parseCommonInput(c)
 	if err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		return
@@ -110,11 +110,11 @@ func (h *GiteaHandler) Get(c *gin.Context) {
 func (h *GiteaHandler) Post(c *gin.Context) {
 	log.Println("POST request received")
 	var (
-		err                error
-		request            *Request
-		response           *http.Response
-		branch, authHeader string
-		state              *State
+		err                         error
+		request                     *Request
+		response                    *http.Response
+		branch, encrypt, authHeader string
+		state                       *State
 	)
 
 	var requestBody []byte
@@ -134,7 +134,7 @@ func (h *GiteaHandler) Post(c *gin.Context) {
 		return
 	}
 
-	if encrypt == "yes" && encryptionKey, set := os.LookupEnv("TF_STATE_ENCRYPTION_KEY"); set {
+	if encryptionKey, set := os.LookupEnv("TF_STATE_ENCRYPTION_KEY"); encrypt == "yes" && set {
 		state, err = NewEncryptedState(encryptionKey, requestBody)
 		if err == nil {
 			requestBody, err = json.MarshalIndent(state, "", "  ")

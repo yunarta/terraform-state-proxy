@@ -19,7 +19,7 @@ func closeGracefully(body Closeable) {
 	_ = body.Close()
 }
 
-func parseCommonInput(c *gin.Context) (string, string, *Request, error) {
+func parseCommonInput(c *gin.Context) (string, string, string, *Request, error) {
 	branch := c.Query("branch")
 	encrypt := c.Query("encrypt")
 	authHeader := c.GetHeader("Authorization")
@@ -28,7 +28,7 @@ func parseCommonInput(c *gin.Context) (string, string, *Request, error) {
 	err := c.ShouldBindUri(&request)
 	if err != nil {
 		c.String(http.StatusBadRequest, "")
-		return "", "", nil, err
+		return "", "", "", nil, err
 	}
 
 	request.Path = strings.TrimPrefix(request.Path, "/")
