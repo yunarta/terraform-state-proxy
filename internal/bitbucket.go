@@ -89,7 +89,7 @@ func (h *BitbucketHandler) Get(c *gin.Context) {
 
 		state = State{}
 		if err = json.Unmarshal(bodyBytes, &state); err == nil {
-			if encryptionKey, set := os.LookupEnv("TF_STATE_ENCRYPTION_KEY"); set {
+			if encryptionKey, set := os.LookupEnv("TF_STATE_ENCRYPTION_KEY"); set && state.AESIV != "" {
 				decrypted, err = state.Decrypt(encryptionKey)
 				if err == nil {
 					c.Data(http.StatusOK, response.Header.Get("Context-Type"), decrypted)
